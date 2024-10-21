@@ -1,5 +1,9 @@
 module Extinctions
 
+# manual import of `SpeciesInteractionsNetworks`
+using Pkg
+Pkg.add(url="https://github.com/PoisotLab/SpeciesInteractionNetworks.jl")
+
 # Dependencies
 using DataFrames
 using DataFramesMeta
