@@ -2,6 +2,10 @@ using Documenter
 using Extinctions
 using Literate
 
+# manual import of `SpeciesInteractionsNetworks`
+using Pkg
+Pkg.add(url="https://github.com/PoisotLab/SpeciesInteractionNetworks.jl")
+
 @info "Prepare to compile"
 vignettes_dir = joinpath("docs", "src", "vignettes")
 for vignette in readdir(vignettes_dir)
