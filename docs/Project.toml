@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Extinctions = "cd114cb6-7982-4017-a01c-1032758e0eff"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SpeciesInteractionNetworks = "49e116ef-912f-4766-9e56-896a49944adc"
