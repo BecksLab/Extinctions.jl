@@ -19,7 +19,7 @@ function _speciesremoval(
         if richness(K) == end_richness
             push!(network_series, K)
             break
-        # if richenss below target then we break without pushing
+        # if richness below target then we break without pushing
         elseif richness(K) < end_richness
             break
         # continue removing species
