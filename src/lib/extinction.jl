@@ -35,13 +35,13 @@ function extinction(
     if richness(N) <= end_richness
         throw(ArgumentError("Richness of final community is less than starting community"))
     end
-    if !issubset(species(N), extinction_list)
-        throw(
-            ArgumentError(
-                "Species in the network do not match those specified in `extinction_list`",
-            ),
-        )
-    end
+   # if !issubset(species(N), extinction_list)
+   #     throw(
+   #         ArgumentError(
+   #             "Species in the network do not match those specified in `extinction_list`",
+   #         ),
+   #     )
+   # end
 
     network_series = Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}}()
     # push initial network
