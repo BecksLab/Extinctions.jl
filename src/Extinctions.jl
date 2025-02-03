@@ -12,6 +12,11 @@ export extinctionsequence
 include(joinpath("lib", "speciesremoval.jl"))
 
 include(joinpath("lib", "extinction.jl"))
+
 export extinction
+
+include(joinpath("lib", "robustness.jl"))
+
+export robustness
 
 end # module Extinctions
