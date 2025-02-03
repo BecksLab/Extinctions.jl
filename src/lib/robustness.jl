@@ -11,7 +11,7 @@ function _auc(x::Vector{T}, y::Vector{T}) where {T <: Number}
 end
 
 """
-    Retrieves the primary and secondary extinctions for a given series of network extinctions
+    Returns the AUC (area under curve) for an extinction curve, i.e., the primary vs secondary extinctions.
 """
 function robustness(Ns::Vector{T}; dims::Union{Nothing,Int64}=nothing) where {T <: SpeciesInteractionNetwork}
     primary = collect(LinRange(0.0, 1.0, length(Ns)))
@@ -22,5 +22,5 @@ function robustness(Ns::Vector{T}; dims::Union{Nothing,Int64}=nothing) where {T 
         
         secondary = richness.(Ns; dims=dims)./richness(first(Ns); dims=dims)
     end
-    return primary, secondary
+    return _auc(primary, secondary)
 end
