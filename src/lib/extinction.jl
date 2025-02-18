@@ -12,7 +12,7 @@ function extinction(
         throw(ArgumentError("Richness of starting community is less than final community"))
     end
 
-    extinction_list = StatsBase.shuffle(species(N))
+    extinction_list = StatsBase.shuffle(SpeciesInteractionNetworks.species(N))
     network_series = Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}}()
     # push initial network
     push!(network_series, deepcopy(N))

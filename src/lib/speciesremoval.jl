@@ -8,13 +8,34 @@ function _speciesremoval(
     extinction_list::Vector{Symbol},
     end_richness::Int64,
 )
+    # identify basal spp (generality = 0) - this is so that we don't remove them
+    # when we do the secondary extinctions
+    gen = SpeciesInteractionNetworks.generality(network_series[1])
+    basal_spp = collect(keys(filter(((k,v),) -> v == 0, gen)))
 
     for (i, sp_to_remove) in enumerate(extinction_list)
         N = network_series[i]
         species_to_keep =
             filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
+        
+        # primary extinction
         K = subgraph(N, species_to_keep)
+
+        # identify all species with generality of zero (no prey)
+        gen = generality(K)
+        gen0 = collect(keys(filter(((k,v),) -> v == 0, gen)))
+        # remove the species previously identified as basal
+        filter!(x -> x ∉ basal_spp, gen0)
+
+        # update spp_to_keep list (don't include gen0 spp)
+        filter!(sp -> sp ∉ gen0, species_to_keep)
+
+        # secondary extinction
+        K = subgraph(N, species_to_keep)
+
+        # 'bycatch' - drop species now isolated
         K = simplify(K)
+
         # end if target richness reached
         if richness(K) == end_richness
             push!(network_series, K)
