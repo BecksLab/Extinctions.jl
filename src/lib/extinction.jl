@@ -19,22 +19,8 @@ function extinction(
     # get list for all species
     extinction_list = StatsBase.shuffle(SpeciesInteractionNetworks.species(N))
 
-    # get generality of all spp
-    gen = SpeciesInteractionNetworks.generality(N)
-
-    # we must protect basal species - remove them from extinction list
-    if protect == :basal
-        # identify basal species
-        filter!(v -> last(v) == 0, gen)
-        # remove the species previously identified as basal
-        filter!(x -> x ∉ collect(keys(gen)), extinction_list)
-    elseif protect == :consumer
-        # identify basal species
-        filter!(v -> last(v) > 0, gen)
-        # remove the species previously identified as basal
-        filter!(x -> x ∉ collect(keys(gen)), extinction_list)
-    end
-
+    # apply protection rules
+    extinction_list = _protect(N, protect, extinction_list)
     # create object to store networks at each timestamp
     network_series = Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}}()
     # push initial network
@@ -69,6 +55,9 @@ function extinction(
    #         ),
    #     )
    # end
+
+   # apply protection rules
+   extinction_list = _protect(N, protect, extinction_list)
 
     network_series = Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}}()
     # push initial network
