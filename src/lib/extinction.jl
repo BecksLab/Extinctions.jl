@@ -2,7 +2,9 @@
 extinction(N::SpeciesInteractionNetwork, end_richness::Int64)
 
     Function to simulate random, cascading extinctions of an initial network `N` until 
-    the richness is less than or equal to that specified by `end_richness`.
+    the richness is less than or equal to that specified by `end_richness`. Protect
+    specifies which species should not be selected for extinction, by default all
+    basal species are protected
 """
 function extinction(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
