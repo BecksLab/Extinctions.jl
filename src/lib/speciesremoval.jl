@@ -23,7 +23,8 @@ function _speciesremoval(
 
         # identify all species with generality of zero (no prey)
         gen = generality(K)
-        gen0 = collect(keys(filter(((k,v),) -> v == 0, gen)))
+        filter!(v -> last(v) == 0, gen)
+        gen0 = collect(keys(gen))
         # remove the species previously identified as basal
         filter!(x -> x ∉ basal_spp, gen0)
 

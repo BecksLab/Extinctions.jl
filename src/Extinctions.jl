@@ -10,6 +10,7 @@ include(joinpath("lib", "extinctionsequence.jl"))
 export extinctionsequence
 
 include(joinpath("lib", "speciesremoval.jl"))
+include(joinpath("lib", "protection.jl"))
 
 include(joinpath("lib", "extinction.jl"))
 
