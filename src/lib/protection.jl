@@ -5,7 +5,7 @@ _protect(N::SpeciesInteractionNetwork{<:Partiteness,<:Binary}, protect::Symbol, 
     be removed from the extinction sequence list - i.e. not targeted for
     extinction.
 """
-function _protect(N::SpeciesInteractionNetwork{<:Partiteness,<:Binary}, protect::Symbol, extinction_list::Vector{String})
+function _protect(N::SpeciesInteractionNetwork{<:Partiteness,<:Binary}, protect::Symbol, extinction_list::Vector{Symbol})
         # get generality of all spp
         gen = SpeciesInteractionNetworks.generality(N)
 
