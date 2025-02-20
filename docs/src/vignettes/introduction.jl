@@ -38,7 +38,7 @@ int_matrix = Bool[
 ]
 edges = Binary(int_matrix)
 
-network = SpeciesInteractionNetwork(nodes, edges)
+N = SpeciesInteractionNetwork(nodes, edges)
 
 # The default behaviour of the `extinctions()` function is to simulate random
 # extinctions until the richness of the entire network is zero. Additionally it

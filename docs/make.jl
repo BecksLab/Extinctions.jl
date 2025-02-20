@@ -1,13 +1,13 @@
 using Documenter
-using Extinctions
 using Literate
 
 # manual import of `SpeciesInteractionsNetworks`
 using Pkg
 Pkg.add(url="https://github.com/PoisotLab/SpeciesInteractionNetworks.jl")
+Pkg.add(url="https://github.com/TanyaS08/Extinctions.jl")
 
 @info "Prepare to compile"
-vignettes_dir = joinpath("docs", "src", "vignettes")
+vignettes_dir = joinpath("src", "vignettes")
 for vignette in readdir(vignettes_dir)
     if occursin(".jl", vignette)
         Literate.markdown(joinpath(vignettes_dir, vignette), vignettes_dir; credit = false)
