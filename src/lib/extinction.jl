@@ -40,7 +40,7 @@ extinction(N::SpeciesInteractionNetwork, extinction_list::Vector{String}, end_ri
 """
 function extinction(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary},
-    extinction_list::Vector{Symbol};
+    extinction_list::Union{Vector{Symbol}, Symbol};
     end_richness::Int64 = 0,
     protect::Symbol = :none,
 )
@@ -57,6 +57,11 @@ function extinction(
    #         ),
    #     )
    # end
+
+   # turn scalar species into 1-element vector
+   if typeof(extinction_list) == Symbol
+    extinction_list = [extinction_list]
+   end
 
    # apply protection rules
    extinction_list = _protect(N, protect, extinction_list)
