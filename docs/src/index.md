@@ -2,6 +2,4 @@
 
 ## Core functions
 
-```@docs
-extinction
-```
+blah blah blah
