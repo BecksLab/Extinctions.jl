@@ -28,3 +28,4 @@ Manifest.toml
 
 # scrap paper code
 _scrap.jl
+.DS_Store
