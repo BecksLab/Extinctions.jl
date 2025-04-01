@@ -26,6 +26,7 @@ function _speciesremoval(
         filter!(v -> last(v) == 0, gen)
         gen0 = collect(keys(gen))
         # remove the species previously identified as basal
+        # this is because we don't want to remove basal species just those that are now gen0
         filter!(x -> x ∉ basal_spp, gen0)
 
         # update spp_to_keep list (don't include gen0 spp)
@@ -38,11 +39,11 @@ function _speciesremoval(
         K = simplify(K)
 
         # end if target richness reached
-        if richness(K) == end_richness
+        if SpeciesInteractionNetworks.richness(K) == end_richness
             push!(network_series, K)
             break
         # if richness below target then we break without pushing
-        elseif richness(K) < end_richness
+        elseif SpeciesInteractionNetworks.richness(K) < end_richness
             break
         # continue removing species
         else
