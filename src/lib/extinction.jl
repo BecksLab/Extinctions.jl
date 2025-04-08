@@ -11,7 +11,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :basal,
 )
-    if richness(N) <= end_richness
+    if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of starting community is less than final community"))
     end
     if protect ∉ [:none, :basal, :consumer]
@@ -44,7 +44,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :none,
 )
-    if richness(N) <= end_richness
+    if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of final community is less than starting community"))
     end
     if protect ∉ [:none, :basal, :consumer]
@@ -71,4 +71,52 @@ function extinction(
     push!(network_series, deepcopy(N))
 
     return _speciesremoval(network_series, extinction_list, end_richness)
+end
+
+"""
+extinction(N::SpeciesInteractionNetwork, end_richness::Int64)
+
+    Function to simulate random, cascading extinctions of an initial network `N` until 
+    the richness is less than or equal to that specified by `end_richness`. Protect
+    specifies which species should not be selected for extinction, by default all
+    basal species are protected
+"""
+function extinction(
+    N::SpeciesInteractionNetwork{<:Partiteness,<:Binary},
+    fun_name::String,
+    descending::Bool = false;
+    end_richness::Int64 = 0,
+    protect::Symbol = :basal,
+)
+    if SpeciesInteractionNetworks.richness(N) <= end_richness
+        throw(ArgumentError("Richness of starting community is less than final community"))
+    end
+    if protect ∉ [:none, :basal, :consumer]
+        error("Invalid value for protect -- must be :none, :basal or :consumer")
+    end
+
+    # create object to store networks at each timestamp
+    network_series = Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}}()
+    # push initial network
+    push!(network_series, deepcopy(N))
+
+    for i in 1:SpeciesInteractionNetworks.richness(N)
+        
+        f = getfield(Main, Symbol(fun_name))
+        extinction_list = extinctionsequence(f(network_series[i]); descending = descending)
+        # apply protection rules
+        extinction_list = _protect(network_series[i], protect, extinction_list)
+
+        _speciesremoval(network_series, [extinction_list[1]], end_richness)
+    
+        # end if target richness reached
+        if SpeciesInteractionNetworks.richness(network_series[i+1]) == end_richness
+            break
+        # continue removing species
+        else
+            continue
+        end
+    end
+
+    return network_series
 end
