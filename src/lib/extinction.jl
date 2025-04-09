@@ -74,12 +74,21 @@ function extinction(
 end
 
 """
-extinction(N::SpeciesInteractionNetwork, end_richness::Int64)
+extinction(N::SpeciesInteractionNetwork,
+    fun_name::String,
+    descending::Bool;
+    end_richness::Int64,
+    protect::Symbol)
 
-    Function to simulate random, cascading extinctions of an initial network `N` until 
-    the richness is less than or equal to that specified by `end_richness`. Protect
-    specifies which species should not be selected for extinction, by default all
-    basal species are protected
+    Function to simulate 'dynamic', topological, cascading extinctions of an initial 
+    network `N` until the richness is less than or equal to that specified by 
+    `end_richness`. Protect specifies which species should not be selected for extinction,
+    by default all basal species are protected
+
+    fun_name should be a function that returns a dictionary of numerical 'traits' that
+    can be ordered as specified by descending. The values of these traits will be
+    re-evaluated after each extinction event.
+
 """
 function extinction(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary},
