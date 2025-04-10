@@ -110,7 +110,7 @@ function extinction(
     push!(network_series, deepcopy(N))
 
     # apply protection rules
-    master_list = _protect(network_series[i], protect, SpeciesInteractionNetworks.species(N))
+    master_list = _protect(N, protect, SpeciesInteractionNetworks.species(N))
 
     for i in 1:length(master_list)
         
