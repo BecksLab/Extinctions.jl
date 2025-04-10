@@ -109,17 +109,21 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    for i in 1:SpeciesInteractionNetworks.richness(N)
+    # apply protection rules
+    master_list = _protect(network_series[i], protect, SpeciesInteractionNetworks.species(N))
+
+    for i in 1:length(master_list)
         
         f = getfield(Main, Symbol(fun_name))
         extinction_list = extinctionsequence(f(network_series[i]); descending = descending)
-        # apply protection rules
-        extinction_list = _protect(network_series[i], protect, extinction_list)
+
+        # only keep spp in master list
+        filter!(v -> v ∈ master_list, extinction_list)
 
         _speciesremoval(network_series, [extinction_list[1]], end_richness)
     
         # end if target richness reached
-        if SpeciesInteractionNetworks.richness(network_series[i+1]) == end_richness
+        if SpeciesInteractionNetworks.richness(network_series[i+1]) <= end_richness
             break
         # continue removing species
         else
