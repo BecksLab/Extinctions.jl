@@ -109,12 +109,14 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    # apply protection rules
+    # find species that are 'unprotected'
     master_list = _protect(N, protect, SpeciesInteractionNetworks.species(N))
+
+    # specify numeric function
+    f = getfield(Main, Symbol(fun_name))
 
     for i in 1:length(master_list)
         
-        f = getfield(Main, Symbol(fun_name))
         extinction_list = extinctionsequence(f(network_series[i]); descending = descending)
 
         # only keep spp in master list
