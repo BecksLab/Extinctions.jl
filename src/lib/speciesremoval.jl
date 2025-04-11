@@ -14,7 +14,7 @@ function _speciesremoval(
     basal_spp = collect(keys(filter(((k,v),) -> v == 0, gen)))
 
     for (i, sp_to_remove) in enumerate(extinction_list)
-        N = network_series[i]
+        N = network_series[end]
         species_to_keep =
             filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
         
