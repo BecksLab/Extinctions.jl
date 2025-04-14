@@ -14,8 +14,16 @@ function extinctionsequence(hierarchy::Vector{String}, trait_data::DataFrame; de
         hierarchy = reverse(hierarchy)
     end
 
-    df = @rorderby trait_data findfirst(==(:trait), hierarchy)
-    return Symbol.(df.species)
+    spp_ord = []
+    # extract spp for each trait group, shuffle and append (will be in order of hierarchy)
+    for (i, val) in enumerate(hierarchy)
+        trait_grp = filter(:trait => x -> x == val, trait_data)
+        _spp = collect(StatsBase.shuffle(trait_grp.species))
+        append!(spp_ord, _spp)
+    end
+
+
+    return Symbol.(spp_ord)
 end
 
 """
