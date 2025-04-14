@@ -31,9 +31,9 @@ species = [:fox, :vole, :hawk, :turnip]
 nodes = Unipartite(species)
 
 int_matrix = Bool[
-    0 1 0 0;
-    0 0 0 1;
-    0 1 0 0;
+    0 1 0 0
+    0 0 0 1
+    0 1 0 0
     0 0 0 0
 ]
 edges = Binary(int_matrix)
@@ -57,10 +57,12 @@ robust = robustness(extinction_sequence)
 # we can also plot the extinction curve
 
 f = Figure()
-Axis(f[1,1], xlabel = "Proportion remaining",
-    ylabel = "Proportion removed")
+Axis(f[1, 1], xlabel = "Proportion remaining", ylabel = "Proportion removed")
 
-lines!(f[1,1], collect(LinRange(0.0, 1.0, length(extinction_sequence))),
-        richness.(extinction_sequence)./richness(first(extinction_sequence)))
+lines!(
+    f[1, 1],
+    collect(LinRange(0.0, 1.0, length(extinction_sequence))),
+    richness.(extinction_sequence) ./ richness(first(extinction_sequence)),
+)
 
 f

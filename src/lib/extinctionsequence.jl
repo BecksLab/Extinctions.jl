@@ -3,7 +3,11 @@ extinctionsequence(hierarchy::Vector{Any}, trait_data::DataFrame; descending::Bo
 
     Determine the order of species extinction for categorical traits using a specified hierarchy.
 """
-function extinctionsequence(hierarchy::Vector{String}, trait_data::DataFrame; descending::Bool = false)
+function extinctionsequence(
+    hierarchy::Vector{String},
+    trait_data::DataFrame;
+    descending::Bool = false,
+)
     # data checks
     if !issubset(String.(trait_data.trait), hierarchy)
         error("Not all traits in `traits_data` are listed in `hierarchy`")

@@ -40,7 +40,7 @@ extinction(N::SpeciesInteractionNetwork, extinction_list::Vector{String}, end_ri
 """
 function extinction(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary},
-    extinction_list::Union{Vector{Symbol}, Symbol};
+    extinction_list::Union{Vector{Symbol},Symbol};
     end_richness::Int64 = 0,
     protect::Symbol = :none,
 )
@@ -50,21 +50,21 @@ function extinction(
     if protect ∉ [:none, :basal, :consumer]
         error("Invalid value for protect -- must be :none, :basal or :consumer")
     end
-   # if !issubset(species(N), extinction_list)
-   #     throw(
-   #         ArgumentError(
-   #             "Species in the network do not match those specified in `extinction_list`",
-   #         ),
-   #     )
-   # end
+    # if !issubset(species(N), extinction_list)
+    #     throw(
+    #         ArgumentError(
+    #             "Species in the network do not match those specified in `extinction_list`",
+    #         ),
+    #     )
+    # end
 
-   # turn scalar species into 1-element vector
-   if typeof(extinction_list) == Symbol
-    extinction_list = [extinction_list]
-   end
+    # turn scalar species into 1-element vector
+    if typeof(extinction_list) == Symbol
+        extinction_list = [extinction_list]
+    end
 
-   # apply protection rules
-   extinction_list = _protect(N, protect, extinction_list)
+    # apply protection rules
+    extinction_list = _protect(N, protect, extinction_list)
 
     network_series = Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}}()
     # push initial network
@@ -115,19 +115,19 @@ function extinction(
     # specify numeric function
     f = getfield(Main, Symbol(fun_name))
 
-    for i in 1:length(master_list)
-        
+    for i = 1:length(master_list)
+
         extinction_list = extinctionsequence(f(network_series[i]); descending = descending)
 
         # only keep spp in master list
         filter!(v -> v ∈ master_list, extinction_list)
 
         _speciesremoval(network_series, [extinction_list[1]], end_richness)
-    
+
         # end if target richness reached
         if SpeciesInteractionNetworks.richness(network_series[i+1]) <= end_richness
             break
-        # continue removing species
+            # continue removing species
         else
             continue
         end

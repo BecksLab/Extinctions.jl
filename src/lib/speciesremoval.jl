@@ -11,13 +11,13 @@ function _speciesremoval(
     # identify basal spp (generality = 0) - this is so that we don't remove them
     # when we do the secondary extinctions
     gen = SpeciesInteractionNetworks.generality(network_series[1])
-    basal_spp = collect(keys(filter(((k,v),) -> v == 0, gen)))
+    basal_spp = collect(keys(filter(((k, v),) -> v == 0, gen)))
 
     for (i, sp_to_remove) in enumerate(extinction_list)
         N = network_series[end]
         species_to_keep =
             filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
-        
+
         # primary extinction
         K = subgraph(N, species_to_keep)
 
@@ -42,10 +42,10 @@ function _speciesremoval(
         if SpeciesInteractionNetworks.richness(K) == end_richness
             push!(network_series, K)
             break
-        # if richness below target then we break without pushing
+            # if richness below target then we break without pushing
         elseif SpeciesInteractionNetworks.richness(K) < end_richness
             break
-        # continue removing species
+            # continue removing species
         else
             push!(network_series, K)
             continue
