@@ -15,40 +15,45 @@ function _speciesremoval(
 
     for (i, sp_to_remove) in enumerate(extinction_list)
         N = network_series[end]
-        species_to_keep =
-            filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
 
-        # primary extinction
-        K = subgraph(N, species_to_keep)
+        # check that spp is still in network
+        if sp_to_remove ∈ SpeciesInteractionNetworks.species(N)
 
-        # identify all species with generality of zero (no prey)
-        gen = generality(K)
-        filter!(v -> last(v) == 0, gen)
-        gen0 = collect(keys(gen))
-        # remove the species previously identified as basal
-        # this is because we don't want to remove basal species just those that are now gen0
-        filter!(x -> x ∉ basal_spp, gen0)
+            species_to_keep =
+                filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
 
-        # update spp_to_keep list (don't include gen0 spp)
-        filter!(sp -> sp ∉ gen0, species_to_keep)
+            # primary extinction
+            K = subgraph(N, species_to_keep)
 
-        # secondary extinction
-        K = subgraph(N, species_to_keep)
+            # identify all species with generality of zero (no prey)
+            gen = generality(K)
+            filter!(v -> last(v) == 0, gen)
+            gen0 = collect(keys(gen))
+            # remove the species previously identified as basal
+            # this is because we don't want to remove basal species just those that are now gen0
+            filter!(x -> x ∉ basal_spp, gen0)
 
-        # 'bycatch' - drop species now isolated
-        K = simplify(K)
+            # update spp_to_keep list (don't include gen0 spp)
+            filter!(sp -> sp ∉ gen0, species_to_keep)
 
-        # end if target richness reached
-        if SpeciesInteractionNetworks.richness(K) == end_richness
-            push!(network_series, K)
-            break
-            # if richness below target then we break without pushing
-        elseif SpeciesInteractionNetworks.richness(K) < end_richness
-            break
-            # continue removing species
-        else
-            push!(network_series, K)
-            continue
+            # secondary extinction
+            K = subgraph(N, species_to_keep)
+
+            # 'bycatch' - drop species now isolated
+            K = simplify(K)
+
+            # end if target richness reached
+            if SpeciesInteractionNetworks.richness(K) == end_richness
+                push!(network_series, K)
+                break
+                # if richness below target then we break without pushing
+            elseif SpeciesInteractionNetworks.richness(K) < end_richness
+                break
+                # continue removing species
+            else
+                push!(network_series, K)
+                continue
+            end
         end
     end
     return network_series
