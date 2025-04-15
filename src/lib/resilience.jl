@@ -13,7 +13,7 @@ end
 """
     Returns the AUC (area under curve) for an extinction curve, i.e., the primary vs secondary extinctions.
 """
-function robustness(
+function resilience(
     Ns::Vector{T};
     dims::Union{Nothing,Int64} = nothing,
 ) where {T<:SpeciesInteractionNetwork}

@@ -16,8 +16,8 @@ include(joinpath("lib", "extinction.jl"))
 
 export extinction
 
-include(joinpath("lib", "robustness.jl"))
+include(joinpath("lib", "resilience.jl"))
 
-export robustness
+export resilience
 
 end # module Extinctions
