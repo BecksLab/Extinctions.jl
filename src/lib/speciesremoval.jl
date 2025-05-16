@@ -47,10 +47,10 @@ function _speciesremoval(
             filter!(x -> x ∉ basal_spp, gen0)
                 
             # update spp_to_keep list (don't include gen0 spp)
-            filter!(sp -> sp ∉ gen0, species_to_keep)
+            spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
 
             # nth extinction
-            K = subgraph(K, species_to_keep)
+            K = subgraph(K, spp_keep)
 
             # 'bycatch' - drop species now isolated
             global K = simplify(K)
