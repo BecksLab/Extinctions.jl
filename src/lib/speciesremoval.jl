@@ -25,8 +25,9 @@ function _speciesremoval(
                 filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
 
             # primary extinction
-            K = subgraph(N, species_to_keep)
+            global K = subgraph(N, species_to_keep)
 
+            # TODO this can possibly be made way more elegant...
             # identify all species with generality of zero (no prey)
             gen = generality(K)
             filter!(v -> last(v) == 0, gen)
@@ -36,15 +37,23 @@ function _speciesremoval(
             filter!(x -> x ∉ basal_spp, gen0)
 
             while length(gen0) > 0
+
+            # identify all species with generality of zero (no prey)
+            gen = generality(K)
+            filter!(v -> last(v) == 0, gen)
+            gen0 = collect(keys(gen))
+            # remove the species previously identified as basal
+            # this is because we don't want to remove basal species just those that are now gen0
+            filter!(x -> x ∉ basal_spp, gen0)
                 
-                # update spp_to_keep list (don't include gen0 spp)
-                keep_second = filter(sp -> sp ∉ gen0, species_to_keep)
+            # update spp_to_keep list (don't include gen0 spp)
+            filter!(sp -> sp ∉ gen0, species_to_keep)
 
-                # secondary extinction
-                K = subgraph(N, keep_second)
+            # nth extinction
+            K = subgraph(K, species_to_keep)
 
-                # 'bycatch' - drop species now isolated
-                global K = simplify(K)
+            # 'bycatch' - drop species now isolated
+            global K = simplify(K)
 
             end
 
