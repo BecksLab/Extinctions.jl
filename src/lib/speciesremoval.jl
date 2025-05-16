@@ -1,7 +1,9 @@
 """
 _speciesremoval(N::SpeciesInteractionNetwork, end_richness::Int64)
 
-    Internal function that does the species removal simulations within extinction()
+    Internal function that does the species removal simulations within extinction(). Note
+    that this is preforming a cascade extinction - after a primary extinction secondary extinctions
+    will continue beyond a secondary extinction.
 """
 function _speciesremoval(
     network_series::Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}},
@@ -33,14 +35,18 @@ function _speciesremoval(
             # this is because we don't want to remove basal species just those that are now gen0
             filter!(x -> x ∉ basal_spp, gen0)
 
-            # update spp_to_keep list (don't include gen0 spp)
-            filter!(sp -> sp ∉ gen0, species_to_keep)
+            while length(gen0) > 0
+                
+                # update spp_to_keep list (don't include gen0 spp)
+                keep_second = filter(sp -> sp ∉ gen0, species_to_keep)
 
-            # secondary extinction
-            K = subgraph(N, species_to_keep)
+                # secondary extinction
+                K = subgraph(N, keep_second)
 
-            # 'bycatch' - drop species now isolated
-            K = simplify(K)
+                # 'bycatch' - drop species now isolated
+                global K = simplify(K)
+
+            end
 
             # end if target richness reached
             if SpeciesInteractionNetworks.richness(K) == end_richness
