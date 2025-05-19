@@ -115,7 +115,9 @@ function extinction(
     # specify numeric function
     f = getfield(Main, Symbol(fun_name))
 
-    for i = 1:length(master_list)
+    for i = eachindex(master_list)
+
+        if master_list[i] ∈ SpeciesInteractionNetworks.species(N)
 
         extinction_list = extinctionsequence(f(network_series[i]); descending = descending)
 
@@ -131,6 +133,7 @@ function extinction(
         else
             continue
         end
+    end
     end
 
     return network_series
