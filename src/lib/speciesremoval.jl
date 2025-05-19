@@ -38,22 +38,22 @@ function _speciesremoval(
 
             while length(gen0) > 0
 
-            # identify all species with generality of zero (no prey)
-            gen = generality(K)
-            filter!(v -> last(v) == 0, gen)
-            gen0 = collect(keys(gen))
-            # remove the species previously identified as basal
-            # this is because we don't want to remove basal species just those that are now gen0
-            filter!(x -> x ∉ basal_spp, gen0)
-                
-            # update spp_to_keep list (don't include gen0 spp)
-            spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
+                # identify all species with generality of zero (no prey)
+                gen = generality(K)
+                filter!(v -> last(v) == 0, gen)
+                gen0 = collect(keys(gen))
+                # remove the species previously identified as basal
+                # this is because we don't want to remove basal species just those that are now gen0
+                filter!(x -> x ∉ basal_spp, gen0)
 
-            # nth extinction
-            K = subgraph(K, spp_keep)
+                # update spp_to_keep list (don't include gen0 spp)
+                spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
 
-            # 'bycatch' - drop species now isolated
-            global K = simplify(K)
+                # nth extinction
+                K = subgraph(K, spp_keep)
+
+                # 'bycatch' - drop species now isolated
+                global K = simplify(K)
 
             end
 

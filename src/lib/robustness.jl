@@ -8,7 +8,7 @@ function robustness(Ns::Vector{T}; threshold::Int = 50) where {T<:SpeciesInterac
     init_rich = richness(Ns[1])
 
     # threshold richness
-    thresh_rich = floor(Int, threshold/100 * init_rich)
+    thresh_rich = floor(Int, threshold / 100 * init_rich)
 
     # get first index in network series that is equal to or less than e50
     net_in = findfirst(x -> x <= thresh_rich, richness.(Ns))
