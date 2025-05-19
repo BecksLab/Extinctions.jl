@@ -25,7 +25,7 @@ function _speciesremoval(
                 filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
 
             # primary extinction
-            global K = subgraph(N, species_to_keep)
+            global K = simplify(subgraph(N, species_to_keep))
 
             # TODO this can possibly be made way more elegant...
             # identify all species with generality of zero (no prey)
