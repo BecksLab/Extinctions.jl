@@ -1,6 +1,7 @@
 global anyerrors = false
 
-tests = ["mock test" => "00_allgood.jl", "cascade test" => "01_cascade.jl"]
+tests = ["mock test" => "00_allgood.jl", 
+        "Cascading extinctions" => "01_cascade.jl"]
 
 for test in tests
     try
