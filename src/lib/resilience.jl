@@ -1,5 +1,5 @@
 """
-    Returns the area under a robustness curve
+    Returns the area under a robustness curve (using the trapezoidal rule formula)
 """
 function _auc(x::Vector{T}, y::Vector{T}) where {T<:Number}
     @assert length(x) == length(y)
