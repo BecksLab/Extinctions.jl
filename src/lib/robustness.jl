@@ -13,6 +13,6 @@ function robustness(Ns::Vector{T}; threshold::Int = 50) where {T<:SpeciesInterac
     # get first index in network series that is equal to or less than e50
     net_in = findfirst(x -> x <= thresh_rich, richness.(Ns))
 
-    # return R50
-    return net_in / init_rich
+    # return prop of primary extinctions as total number primary extinctions (length Ns - 1)
+    return net_in / (length(Ns) - 1)
 end
