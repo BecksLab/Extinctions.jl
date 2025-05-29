@@ -127,7 +127,7 @@ function extinction(
         _speciesremoval(network_series, [extinction_list[1]], end_richness)
 
         # end if target richness reached
-        if SpeciesInteractionNetworks.richness(network_series[i+1]) <= end_richness
+        if SpeciesInteractionNetworks.richness(network_series[i]) <= end_richness
             break
             # continue removing species
         else
