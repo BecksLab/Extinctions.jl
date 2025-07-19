@@ -8,14 +8,16 @@ function robustness(Ns::Vector{T}; threshold::Int = 50) where {T<:SpeciesInterac
     init_rich = richness(Ns[1])
 
     # threshold richness
+    # threshold = X% of original size of network
     thresh_rich = floor(Int, threshold / 100 * init_rich)
 
-    # get first index in network series that is equal to or less than e50
+    # get first index in network series that is equal to or less than threshold richness
+    # this is effectively the number of primary extinctions since each element = 1 primary extinction
     net_in = findfirst(x -> x <= thresh_rich, richness.(Ns))
 
-    # cummulative number of extinctions
-    T_p = init_rich - richness.(Ns)[net_in]
+    # we subtract 1 since 1st network in series is the OG network (no extinctions)
+    primary = net_in - 1
 
-    # return prop of primary extinctions as total number primary extinctions (length Ns - 1)
-    return T_p/init_rich
+    # return prop of primary extinctions as total number of initial species
+    return primary/init_rich
 end
