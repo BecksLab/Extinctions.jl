@@ -9,7 +9,7 @@ extinction(N::SpeciesInteractionNetwork, end_richness::Int64)
 function extinction(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
     end_richness::Int64 = 0,
-    protect::Symbol = :basal;
+    protect::Symbol = :basal,
     mechanism::Symbol = :cascade,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
