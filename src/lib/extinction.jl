@@ -47,12 +47,16 @@ function extinction(
     extinction_list::Union{Vector{Symbol},Symbol};
     end_richness::Int64 = 0,
     protect::Symbol = :none,
+    mechanism::Symbol = :cascade,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of final community is less than starting community"))
     end
     if protect ∉ [:none, :basal, :consumer]
         error("Invalid value for protect -- must be :none, :basal or :consumer")
+    end
+    if mechanism ∉ [:cascade, :secondary]
+        error("Invalid value for mechanism -- must be :cascade or :secondary")
     end
     # if !issubset(species(N), extinction_list)
     #     throw(
@@ -100,12 +104,16 @@ function extinction(
     descending::Bool = false;
     end_richness::Int64 = 0,
     protect::Symbol = :basal,
+    mechanism::Symbol = :cascade,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of starting community is less than final community"))
     end
     if protect ∉ [:none, :basal, :consumer]
         error("Invalid value for protect -- must be :none, :basal or :consumer")
+    end
+    if mechanism ∉ [:cascade, :secondary]
+        error("Invalid value for mechanism -- must be :cascade or :secondary")
     end
 
     # create object to store networks at each timestamp
