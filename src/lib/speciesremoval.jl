@@ -55,11 +55,6 @@ function _speciesremoval(
                 # 'bycatch' - drop species now isolated
                 global K = simplify(K)
 
-                # identify all species with generality of zero (no prey)
-                gen = generality(K)
-                filter!(v -> last(v) == 0, gen)
-                gen0 = collect(keys(gen))
-
             end
 
             # end if target richness reached
