@@ -8,7 +8,8 @@ _speciesremoval(N::SpeciesInteractionNetwork, end_richness::Int64)
 function _speciesremoval(
     network_series::Vector{SpeciesInteractionNetwork{<:Partiteness,<:Binary}},
     extinction_list::Vector{Symbol},
-    end_richness::Int64,
+    end_richness::Int64;
+    mechanism::Symbol = :cascade,
 )
     # identify basal spp (generality = 0) - this is so that we don't remove them
     # when we do the secondary extinctions
@@ -27,18 +28,47 @@ function _speciesremoval(
             # primary extinction
             global K = simplify(subgraph(N, species_to_keep))
 
-            # TODO this can possibly be made way more elegant...
-            # identify all species with generality of zero (no prey)
-            gen = generality(K)
-            filter!(v -> last(v) == 0, gen)
-            gen0 = collect(keys(gen))
-            # remove the species previously identified as basal
-            # this is because we don't want to remove basal species just those that are now gen0
-            filter!(x -> x ∉ basal_spp, gen0)
+            # cascading extinction
+            if mechanism == :cascade
 
-            while length(gen0) > 0
-
+                # TODO this can possibly be made way more elegant...
                 # identify all species with generality of zero (no prey)
+                gen = generality(K)
+                filter!(v -> last(v) == 0, gen)
+                gen0 = collect(keys(gen))
+                # remove the species previously identified as basal
+                # this is because we don't want to remove basal species just those that are now gen0
+                filter!(x -> x ∉ basal_spp, gen0)
+
+                while length(gen0) > 0
+
+                    # identify all species with generality of zero (no prey)
+                    gen = generality(K)
+                    filter!(v -> last(v) == 0, gen)
+                    gen0 = collect(keys(gen))
+                    # remove the species previously identified as basal
+                    # this is because we don't want to remove basal species just those that are now gen0
+                    filter!(x -> x ∉ basal_spp, gen0)
+
+                    # update spp_to_keep list (don't include gen0 spp)
+                    spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
+
+                    # nth extinction
+                    K = subgraph(K, spp_keep)
+
+                    # 'bycatch' - drop species now isolated
+                    global K = simplify(K)
+
+                    # identify all species with generality of zero (no prey)
+                    gen = generality(K)
+                    filter!(v -> last(v) == 0, gen)
+                    gen0 = collect(keys(gen))
+                    # remove the species previously identified as basal
+                    # this is because we don't want to remove basal species just those that are now gen0
+                    filter!(x -> x ∉ basal_spp, gen0)
+                end
+            # secondary extinction - only remove preds that have no prey
+            else
                 gen = generality(K)
                 filter!(v -> last(v) == 0, gen)
                 gen0 = collect(keys(gen))
@@ -47,22 +77,13 @@ function _speciesremoval(
                 filter!(x -> x ∉ basal_spp, gen0)
 
                 # update spp_to_keep list (don't include gen0 spp)
-                spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
+                    spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
 
-                # nth extinction
-                K = subgraph(K, spp_keep)
+                    # nth extinction
+                    K = subgraph(K, spp_keep)
 
-                # 'bycatch' - drop species now isolated
-                global K = simplify(K)
-
-                # identify all species with generality of zero (no prey)
-                gen = generality(K)
-                filter!(v -> last(v) == 0, gen)
-                gen0 = collect(keys(gen))
-                # remove the species previously identified as basal
-                # this is because we don't want to remove basal species just those that are now gen0
-                filter!(x -> x ∉ basal_spp, gen0)
-
+                    # 'bycatch' - drop species now isolated
+                    global K = simplify(K)
             end
 
             # end if target richness reached
