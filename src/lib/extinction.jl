@@ -32,7 +32,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism)
 end
 
 """
@@ -78,7 +78,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness; mechanism)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism)
 end
 
 """
@@ -136,7 +136,7 @@ function extinction(
         # only keep spp in master list
         filter!(v -> v ∈ master_list, extinction_list)
 
-        _speciesremoval(network_series, [extinction_list[1]], end_richness)
+        _speciesremoval(network_series, [extinction_list[1]], end_richness; mechanism = mechanism)
 
         # end if target richness reached
         if SpeciesInteractionNetworks.richness(network_series[i+1]) <= end_richness
