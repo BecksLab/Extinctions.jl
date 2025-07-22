@@ -18,7 +18,7 @@ function extinction(
     if protect ∉ [:none, :basal, :consumer]
         error("Invalid value for protect -- must be :none, :basal or :consumer")
     end
-    if mechanism ∉ [:none, :basal, :consumer]
+    if mechanism ∉ [:cascade, :secondary]
         error("Invalid value for mechanism -- must be :cascade or :secondary")
     end
 
