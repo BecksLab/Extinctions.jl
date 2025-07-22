@@ -9,13 +9,17 @@ extinction(N::SpeciesInteractionNetwork, end_richness::Int64)
 function extinction(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
     end_richness::Int64 = 0,
-    protect::Symbol = :basal,
+    protect::Symbol = :basal;
+    mechanism::Symbol = :cascade,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of starting community is less than final community"))
     end
     if protect ∉ [:none, :basal, :consumer]
         error("Invalid value for protect -- must be :none, :basal or :consumer")
+    end
+    if mechanism ∉ [:none, :basal, :consumer]
+        error("Invalid value for mechanism -- must be :cascade or :secondary")
     end
 
     # get list for all species
@@ -70,7 +74,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism)
 end
 
 """
