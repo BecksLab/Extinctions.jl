@@ -24,6 +24,8 @@ function _protect(
         filter!(v -> last(v) > 0, gen)
         # remove the species previously identified as basal
         filter!(x -> x ∉ collect(keys(gen)), extinction_list)
+    elseif protect == :none
+        extinction_list
     end
 
     return extinction_list
