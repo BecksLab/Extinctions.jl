@@ -2,7 +2,7 @@
     Calculates the robustness for a network. That is the proportion of primary extinction that result in
     the user specified % of species going extinct. This threshold is specified by `threshold`
 """
-function robustness_gradient(
+function robustness(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary},
     extinction_order::Vector{Symbol}; 
     threshold::Int = 50)
