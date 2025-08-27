@@ -3,8 +3,8 @@
     the user specified % of species going extinct. This threshold is specified by `threshold`
 """
 function robustness(
-    N::SpeciesInteractionNetwork{<:Partiteness,<:Binary},
-    extinction_order::Vector{Symbol}; 
+    N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
+    extinction_order::Union{Nothing,Vector{Symbol}} = nothing,
     threshold::Int = 50)
 
     initial_rich = richness(N)
@@ -14,6 +14,11 @@ function robustness(
     num_prim = 1
 
     global K = N
+
+    if extinction_order == nothing
+        extinction_order = StatsBase.shuffle(species(K))
+    end
+
 
     # keep removing species until richness drops below threshold
     for (i, sp_primary) in enumerate(extinction_order)
