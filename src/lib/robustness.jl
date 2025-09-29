@@ -13,7 +13,7 @@ function robustness(
     # for recording the number of primary extinctions
     num_prim = 1
 
-    global K = N
+    K = N
 
     if extinction_order == nothing
         extinction_order = StatsBase.shuffle(species(K))
@@ -47,7 +47,7 @@ function robustness(
                 K = subgraph(K, spp_keep)
 
                 # update at global scale
-                global K
+                K
 
                 if richness(K) / initial_rich >= (threshold/100)
                     # keep record of the number of primary extinctions
