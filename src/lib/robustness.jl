@@ -4,8 +4,14 @@
 """
 function robustness(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
-    extinction_order::Union{Nothing,Vector{Symbol}} = nothing,
-    threshold::Int = 50)
+    extinction_order::Union{Nothing,Vector{Symbol}} = nothing, 
+    threshold::Int = 50,
+    mechanism::Symbol = :cascade)
+
+    # tests
+    if mechanism ∉ [:cascade, :secondary]
+        error("Invalid value for mechanism -- must be :cascade or :secondary")
+    end
 
     initial_rich = richness(N)
     percent_loss = initial_rich*(threshold/100)
@@ -15,50 +21,30 @@ function robustness(
 
     K = N
 
-    if extinction_order == nothing
+    if extinction_order === nothing
         extinction_order = StatsBase.shuffle(species(K))
     end
 
-
     # keep removing species until richness drops below threshold
     for (i, sp_primary) in enumerate(extinction_order)
-            # check if sp in network
-            if sp_primary ∈ SpeciesInteractionNetworks.species(K)
-                
-                # find predators of that sp
-                preds = collect(predecessors(K, sp_primary))
+        # check if sp in network
+        if sp_primary ∈ SpeciesInteractionNetworks.species(K)
 
-                # find preys of the preds
-                spp_remove = Symbol[]
-                for j in eachindex(preds)
-                    # if the predator only has one prey (i.e. spp to remove then we add to list)
-                    if length(successors(N, preds[j])) == 1
-                        push!(spp_remove, preds[j])
-                    end
-                end
+            ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism)
 
-                # add primary and secondary extinction list together
-                push!(spp_remove, sp_primary)
+            K = ext_seq[end]
 
-                # remove those species from the network
-                spp_keep = filter(sp -> sp ∉ spp_remove, SpeciesInteractionNetworks.species(K))
-            
-                # nth extinction
-                K = subgraph(K, spp_keep)
-
-                # update at global scale
-                K
-
-                if richness(K) / initial_rich >= (threshold/100)
-                    # keep record of the number of primary extinctions
-                    num_prim += 1
-                    continue
-                else
-                    break
-                end
+            if richness(K) / initial_rich >= (threshold/100)
+                # keep record of the number of primary extinctions
+                num_prim += 1
+                continue
+            else
+                break
             end
         end
+    end
 
     # return prop of primary extinctions as total number of initial species
     return num_prim/initial_rich
+
 end
