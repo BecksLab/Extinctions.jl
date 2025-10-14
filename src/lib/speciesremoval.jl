@@ -26,7 +26,7 @@ function _speciesremoval(
                 filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
 
             # primary extinction
-            global K = simplify(subgraph(N, species_to_keep))
+            K = simplify(subgraph(N, species_to_keep))
 
             # cascading extinction
             if mechanism == :cascade
@@ -57,7 +57,7 @@ function _speciesremoval(
                     K = subgraph(K, spp_keep)
 
                     # 'bycatch' - drop species now isolated
-                    global K = simplify(K)
+                    K = simplify(K)
 
                     # identify all species with generality of zero (no prey)
                     gen = generality(K)
@@ -83,7 +83,7 @@ function _speciesremoval(
                     K = subgraph(K, spp_keep)
 
                     # 'bycatch' - drop species now isolated
-                    global K = simplify(K)
+                    K = simplify(K)
             end
 
             # end if target richness reached
