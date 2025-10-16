@@ -11,6 +11,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :basal,
     mechanism::Symbol = :cascade,
+    simplify::Bool = true,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of starting community is less than final community"))
@@ -32,7 +33,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism, simplify = simplify)
 end
 
 """
@@ -48,6 +49,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :none,
     mechanism::Symbol = :cascade,
+    simplify::Bool = true,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of final community is less than starting community"))
@@ -78,7 +80,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism, simplify = simplify)
 end
 
 """

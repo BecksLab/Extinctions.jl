@@ -10,6 +10,7 @@ function _speciesremoval(
     extinction_list::Vector{Symbol},
     end_richness::Int64;
     mechanism::Symbol = :cascade,
+    simplify::Bool = true
 )
     # identify basal spp (generality = 0) - this is so that we don't remove them
     # when we do the secondary extinctions
@@ -56,8 +57,11 @@ function _speciesremoval(
                     # nth extinction
                     K = subgraph(K, spp_keep)
 
-                    # 'bycatch' - drop species now isolated
-                    K = simplify(K)
+                    # only simplify if true
+                    if simplify == true
+                        # 'bycatch' - drop species now isolated
+                        K = simplify(K)
+                    end
 
                     # identify all species with generality of zero (no prey)
                     gen = generality(K)
@@ -82,8 +86,12 @@ function _speciesremoval(
                     # nth extinction
                     K = subgraph(K, spp_keep)
 
-                    # 'bycatch' - drop species now isolated
-                    K = simplify(K)
+                    # only simplify if true
+                    if simplify == true
+                        # 'bycatch' - drop species now isolated
+                        K = simplify(K)
+                    end
+                    
             end
 
             # end if target richness reached
