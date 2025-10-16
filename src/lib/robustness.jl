@@ -1,6 +1,7 @@
 """
     Calculates the robustness for a network. That is the proportion of primary extinction that result in
-    the user specified % of species going extinct. This threshold is specified by `threshold`
+    the user specified % of species going extinct. This threshold is specified by `threshold`. Extinctions
+    are randomised (unless a predetermined extinction sequence is specified.)
 """
 function robustness(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
