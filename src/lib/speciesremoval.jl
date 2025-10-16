@@ -10,7 +10,7 @@ function _speciesremoval(
     extinction_list::Vector{Symbol},
     end_richness::Int64;
     mechanism::Symbol = :cascade,
-    simplify::Bool = true
+    remove_disconnected::Bool = true
 )
     # identify basal spp (generality = 0) - this is so that we don't remove them
     # when we do the secondary extinctions
@@ -27,7 +27,7 @@ function _speciesremoval(
                 filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
 
             # primary extinction
-            K = simplify(subgraph(N, species_to_keep))
+            K = subgraph(N, species_to_keep)
 
             # cascading extinction
             if mechanism == :cascade
@@ -58,7 +58,7 @@ function _speciesremoval(
                     K = subgraph(K, spp_keep)
 
                     # only simplify if true
-                    if simplify == true
+                    if remove_disconnected == true
                         # 'bycatch' - drop species now isolated
                         K = simplify(K)
                     end
@@ -87,7 +87,7 @@ function _speciesremoval(
                     K = subgraph(K, spp_keep)
 
                     # only simplify if true
-                    if simplify == true
+                    if remove_disconnected == true
                         # 'bycatch' - drop species now isolated
                         K = simplify(K)
                     end

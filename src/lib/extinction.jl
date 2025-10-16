@@ -11,7 +11,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :basal,
     mechanism::Symbol = :cascade,
-    simplify::Bool = true,
+    remove_disconnected::Bool = true,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of starting community is less than final community"))
@@ -33,7 +33,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism, simplify = simplify)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism, remove_disconnected = remove_disconnected)
 end
 
 """
@@ -49,7 +49,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :none,
     mechanism::Symbol = :cascade,
-    simplify::Bool = true,
+    remove_disconnected::Bool = true,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of final community is less than starting community"))
@@ -80,7 +80,7 @@ function extinction(
     # push initial network
     push!(network_series, deepcopy(N))
 
-    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism, simplify = simplify)
+    return _speciesremoval(network_series, extinction_list, end_richness; mechanism = mechanism, remove_disconnected = remove_disconnected)
 end
 
 """
@@ -107,6 +107,7 @@ function extinction(
     end_richness::Int64 = 0,
     protect::Symbol = :basal,
     mechanism::Symbol = :cascade,
+    remove_disconnected::Bool = true,
 )
     if SpeciesInteractionNetworks.richness(N) <= end_richness
         throw(ArgumentError("Richness of starting community is less than final community"))
@@ -138,7 +139,7 @@ function extinction(
         # only keep spp in master list
         filter!(v -> v ∈ master_list, extinction_list)
 
-        _speciesremoval(network_series, [extinction_list[1]], end_richness; mechanism = mechanism)
+        _speciesremoval(network_series, [extinction_list[1]], end_richness; mechanism = mechanism, remove_disconnected = remove_disconnected)
 
         # end if target richness reached
         if SpeciesInteractionNetworks.richness(network_series[i+1]) <= end_richness
