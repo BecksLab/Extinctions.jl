@@ -31,7 +31,7 @@ function robustness(
         # check if sp in network
         if sp_primary ∈ SpeciesInteractionNetworks.species(K)
 
-            ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, simplify = false)
+            ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, remove_disconnected = false)
 
             K = ext_seq[end]
 
