@@ -7,7 +7,8 @@ function robustness(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
     extinction_order::Union{Nothing,Vector{Symbol}} = nothing, 
     threshold::Int = 50,
-    mechanism::Symbol = :cascade)
+    mechanism::Symbol = :cascade,
+    remove_disconnected::Bool = false)
 
     # tests
     if mechanism ∉ [:cascade, :secondary]
@@ -31,7 +32,7 @@ function robustness(
         # check if sp in network
         if sp_primary ∈ SpeciesInteractionNetworks.species(K)
 
-            ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, remove_disconnected = false)
+            ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, remove_disconnected = remove_disconnected)
 
             K = ext_seq[end]
 
