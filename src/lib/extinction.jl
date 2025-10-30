@@ -137,8 +137,13 @@ function extinction(
         # only keep spp in master list
         filter!(v -> v ∈ master_list, extinction_list)
 
-        _speciesremoval(network_series, [extinction_list[1]], end_richness; 
+        if length(extinction_list) > 0
+
+            _speciesremoval(network_series, [extinction_list[1]], end_richness; 
                         mechanism = mechanism, remove_disconnected = remove_disconnected)
+        else
+            push!(network_series, SpeciesInteractionNetworks.simplify(network_series[end]))
+        end
 
     end
 
