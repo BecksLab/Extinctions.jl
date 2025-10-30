@@ -130,25 +130,16 @@ function extinction(
     # specify numeric function
     f = getfield(Main, Symbol(fun_name))
 
-    for i = eachindex(master_list)
+    while SpeciesInteractionNetworks.richness(network_series[end]) > end_richness
 
-        if master_list[i] ∈ SpeciesInteractionNetworks.species(N)
-
-        extinction_list = extinctionsequence(f(network_series[i]); descending = descending)
+        extinction_list = extinctionsequence(f(network_series[end]); descending = descending)
 
         # only keep spp in master list
         filter!(v -> v ∈ master_list, extinction_list)
 
-        _speciesremoval(network_series, [extinction_list[1]], end_richness; mechanism = mechanism, remove_disconnected = remove_disconnected)
+        _speciesremoval(network_series, [extinction_list[1]], end_richness; 
+                        mechanism = mechanism, remove_disconnected = remove_disconnected)
 
-        # end if target richness reached
-        if SpeciesInteractionNetworks.richness(network_series[i+1]) <= end_richness
-            break
-            # continue removing species
-        else
-            continue
-        end
-    end
     end
 
     return network_series
