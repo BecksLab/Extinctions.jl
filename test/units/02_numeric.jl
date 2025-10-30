@@ -21,7 +21,7 @@ edges = Binary(int_matrix)
 network = SpeciesInteractionNetwork(nodes, edges)
 N = network
 
-ext_seq = extinction(N, "generality", true)
+ext_seq = extinction(N, "generality", true; protect = :none)
 
 # test if fox first species removed
 @test :wolf ∉ species(ext_seq[2])
