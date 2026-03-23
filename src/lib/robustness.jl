@@ -16,21 +16,22 @@ function robustness(
     end
 
     initial_rich = richness(N)
-    percent_loss = initial_rich*(threshold/100)
 
     # for recording the number of primary extinctions
-    num_prim = 1
+    num_prim = 0
 
-    K = N
+    K = deepcopy(N)
 
     if extinction_order === nothing
         extinction_order = StatsBase.shuffle(species(K))
     end
 
+    current_species = Set(species(K))
+
     # keep removing species until richness drops below threshold
     for (i, sp_primary) in enumerate(extinction_order)
         # check if sp in network
-        if sp_primary ∈ SpeciesInteractionNetworks.species(K)
+        if sp_primary ∈ current_species
 
             ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, remove_disconnected = remove_disconnected)
 
