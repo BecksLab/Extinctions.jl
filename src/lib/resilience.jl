@@ -29,5 +29,5 @@ function resilience(
 
         remaining = richness.(Ns; dims = dims) ./ richness(first(Ns); dims = dims)
     end
-    return _auc(primary, secondary)
+    return _auc(primary, remaining)
 end
