@@ -1,6 +1,7 @@
 module SPTestNumeric
 
 using Extinctions
+using JLD2
 using SpeciesInteractionNetworks
 using Test
 
@@ -29,5 +30,14 @@ ext_seq = extinction(N, "generality", true; protect = :none)
 @test [:rat, :plant] ∉ species(ext_seq[3])
 # test final community completely extinct
 @test richness(ext_seq[end]) == 0
+
+### more complex
+
+# import networks
+networks = load_object("data/networks.jlds")
+
+N = networks.network[3]
+
+ext_seq = extinction(N, "generality", true; protect = :basal)
 
 end
