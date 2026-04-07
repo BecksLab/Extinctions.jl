@@ -51,3 +51,38 @@ function robustness(
     return num_prim/initial_rich
 
 end
+
+"""
+    robustness(network_sequence::Vector{<:SpeciesInteractionNetwork};
+               threshold::Int = 50)
+
+Calculate robustness from a precomputed extinction sequence of networks.
+The sequence should go from the initial network to the fully extinct network.
+"""
+function robustness(
+    network_sequence::Vector{<:SpeciesInteractionNetwork};
+    threshold::Int = 50
+)
+
+    isempty(network_sequence) && error("network_sequence cannot be empty")
+
+    initial_rich = richness(network_sequence[1])
+
+    # number of primary extinctions (i.e. steps before threshold crossed)
+    num_prim = 0
+
+    for (i, net) in enumerate(network_sequence)
+        current_rich = richness(net)
+
+        if current_rich / initial_rich >= (threshold / 100)
+            # do not count the initial state as an extinction step
+            if i > 1
+                num_prim += 1
+            end
+        else
+            break
+        end
+    end
+
+    return num_prim / initial_rich
+end
