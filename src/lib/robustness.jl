@@ -71,6 +71,8 @@ function robustness(
 
     for (i, net) in enumerate(network_sequence)
 
+        @show [(i, richness(net)) for (i, net) in enumerate(network_sequence)]
+
         current_rich = richness(net)
 
         if current_rich <= target
