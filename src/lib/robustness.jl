@@ -67,22 +67,19 @@ function robustness(
     isempty(network_sequence) && error("network_sequence cannot be empty")
 
     initial_rich = richness(network_sequence[1])
-
-    # number of primary extinctions (i.e. steps before threshold crossed)
-    num_prim = 0
+    target = threshold / 100 * initial_rich
 
     for (i, net) in enumerate(network_sequence)
+
         current_rich = richness(net)
 
-        if current_rich / initial_rich >= (threshold / 100)
-            # do not count the initial state as an extinction step
-            if i > 1
-                num_prim += 1
-            end
-        else
-            break
+        if current_rich <= target
+            # species lost = initial - current
+            return (initial_rich - current_rich) / initial_rich
         end
     end
 
-    return num_prim / initial_rich
+    # never reached threshold → fully robust
+    final_rich = richness(network_sequence[end])
+    return (initial_rich - final_rich) / initial_rich
 end
