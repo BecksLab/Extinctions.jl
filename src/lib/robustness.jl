@@ -66,22 +66,14 @@ function robustness(
 
     isempty(network_sequence) && error("network_sequence cannot be empty")
 
-    initial_rich = richness(network_sequence[1])
-    target = threshold / 100 * initial_rich
+    S0 = richness(network_sequence[1])
+    target = threshold / 100 * S0
 
-    for (i, net) in enumerate(network_sequence)
-
-        @show [(i, richness(net)) for (i, net) in enumerate(network_sequence)]
-
-        current_rich = richness(net)
-
-        if current_rich <= target
-            # species lost = initial - current
-            return (initial_rich - current_rich) / initial_rich
+    for net in network_sequence
+        if richness(net) <= target
+            return (S0 - richness(net)) / S0
         end
     end
 
-    # never reached threshold → fully robust
-    final_rich = richness(network_sequence[end])
-    return (initial_rich - final_rich) / initial_rich
+    return (S0 - richness(network_sequence[end])) / S0
 end
