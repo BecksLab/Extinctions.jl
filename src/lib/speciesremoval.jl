@@ -12,101 +12,86 @@ function _speciesremoval(
     mechanism::Symbol = :cascade,
     remove_disconnected::Bool = true
 )
-    # identify basal spp (generality = 0) - this is so that we don't remove them
-    # when we do the secondary extinctions
-    gen = SpeciesInteractionNetworks.generality(network_series[1])
-    basal_spp = collect(keys(filter(((k, v),) -> v == 0, gen)))
 
-    for (i, sp_to_remove) in enumerate(extinction_list)
+    # --- identify ORIGINAL basal species (never go extinct) ---
+    gen0 = SpeciesInteractionNetworks.generality(network_series[1])
+    basal_spp = Set(k for (k,v) in gen0 if v == 0)
+
+    for sp_to_remove in extinction_list
+
         N = network_series[end]
 
-        # check that spp is still in network
-        if sp_to_remove ∈ SpeciesInteractionNetworks.species(N)
+        # skip if already gone
+        if !(sp_to_remove ∈ SpeciesInteractionNetworks.species(N))
+            continue
+        end
 
-            species_to_keep =
-                filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
+        # --- PRIMARY EXTINCTION ---
+        spp_keep = filter(sp -> sp != sp_to_remove, SpeciesInteractionNetworks.species(N))
+        K = subgraph(N, spp_keep)
 
-            # primary extinction
-            K = subgraph(N, species_to_keep)
+        # --- CASCADE LOOP ---
+        if mechanism == :cascade
 
-            # cascading extinction
-            if mechanism == :cascade
+            while true
+                gen = SpeciesInteractionNetworks.generality(K)
 
-                # TODO this can possibly be made way more elegant...
-                # identify all species with generality of zero (no prey)
-                gen = generality(K)
-                filter!(v -> last(v) == 0, gen)
-                gen0 = collect(keys(gen))
-                # remove the species previously identified as basal
-                # this is because we don't want to remove basal species just those that are now gen0
-                filter!(x -> x ∉ basal_spp, gen0)
+                # consumers that lost all prey (exclude original basal spp)
+                to_remove = [
+                    sp for (sp, g) in gen
+                    if g == 0 && !(sp in basal_spp)
+                ]
 
-                while length(gen0) > 0
+                isempty(to_remove) && break
 
-                    # identify all species with generality of zero (no prey)
-                    gen = generality(K)
-                    filter!(v -> last(v) == 0, gen)
-                    gen0 = collect(keys(gen))
-                    # remove the species previously identified as basal
-                    # this is because we don't want to remove basal species just those that are now gen0
-                    filter!(x -> x ∉ basal_spp, gen0)
-
-                    # update spp_to_keep list (don't include gen0 spp)
-                    spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
-
-                    # nth extinction
-                    K = subgraph(K, spp_keep)
-
-                    # only simplify if true
-                    if remove_disconnected == true
-                        # 'bycatch' - drop species now isolated
-                        K = simplify(K)
-                    end
-
-                    # identify all species with generality of zero (no prey)
-                    gen = generality(K)
-                    filter!(v -> last(v) == 0, gen)
-                    gen0 = collect(keys(gen))
-                    # remove the species previously identified as basal
-                    # this is because we don't want to remove basal species just those that are now gen0
-                    filter!(x -> x ∉ basal_spp, gen0)
-                end
-            # secondary extinction - only remove preds that have no prey
-            else
-                gen = generality(K)
-                filter!(v -> last(v) == 0, gen)
-                gen0 = collect(keys(gen))
-                # remove the species previously identified as basal
-                # this is because we don't want to remove basal species just those that are now gen0
-                filter!(x -> x ∉ basal_spp, gen0)
-
-                # update spp_to_keep list (don't include gen0 spp)
-                    spp_keep = filter(sp -> sp ∉ gen0, SpeciesInteractionNetworks.species(K))
-
-                    # nth extinction
-                    K = subgraph(K, spp_keep)
-
-                    # only simplify if true
-                    if remove_disconnected == true
-                        # 'bycatch' - drop species now isolated
-                        K = simplify(K)
-                    end
-                    
+                spp_keep = filter(sp -> !(sp in to_remove), SpeciesInteractionNetworks.species(K))
+                K = subgraph(K, spp_keep)
             end
 
-            # end if target richness reached
-            if SpeciesInteractionNetworks.richness(K) == end_richness
-                push!(network_series, K)
-                break
-                # if richness below target then we break without pushing
-            elseif SpeciesInteractionNetworks.richness(K) < end_richness
-                break
-                # continue removing species
-            else
-                push!(network_series, K)
-                continue
+        elseif mechanism == :secondary
+
+            gen = SpeciesInteractionNetworks.generality(K)
+
+            to_remove = [
+                sp for (sp, g) in gen
+                if g == 0 && !(sp in basal_spp)
+            ]
+
+            if !isempty(to_remove)
+                spp_keep = filter(sp -> !(sp in to_remove), SpeciesInteractionNetworks.species(K))
+                K = subgraph(K, spp_keep)
             end
         end
+
+        # --- OPTIONAL: remove truly isolated species (no links at all) ---
+        if remove_disconnected
+            A = adjacency(K)
+
+            has_prey = vec(sum(A, dims=2)) .> 0
+            has_pred = vec(sum(A, dims=1)) .> 0
+
+            spp = SpeciesInteractionNetworks.species(K)
+
+            keep_mask = has_prey .| has_pred .| [sp in basal_spp for sp in spp]
+
+            if any(.!keep_mask)
+                spp_keep = spp[keep_mask]
+                K = subgraph(K, spp_keep)
+            end
+        end
+
+        # --- STOP CONDITIONS ---
+        r = SpeciesInteractionNetworks.richness(K)
+
+        if r == end_richness
+            push!(network_series, K)
+            break
+        elseif r < end_richness
+            break
+        else
+            push!(network_series, K)
+        end
     end
+
     return network_series
 end
