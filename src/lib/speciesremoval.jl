@@ -63,21 +63,9 @@ function _speciesremoval(
             end
         end
 
-        # --- OPTIONAL: remove truly isolated species (no links at all) ---
+        # --- remove truly isolated species (no links at all) ---
         if remove_disconnected
-            A = adjacency(K)
-
-            has_prey = vec(sum(A, dims=2)) .> 0
-            has_pred = vec(sum(A, dims=1)) .> 0
-
-            spp = SpeciesInteractionNetworks.species(K)
-
-            keep_mask = has_prey .| has_pred .| [sp in basal_spp for sp in spp]
-
-            if any(.!keep_mask)
-                spp_keep = spp[keep_mask]
-                K = subgraph(K, spp_keep)
-            end
+            K = simplify(K)
         end
 
         # --- STOP CONDITIONS ---
