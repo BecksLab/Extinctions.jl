@@ -1,23 +1,23 @@
-global anyerrors = false
+using Test
+using Extinctions
+using SpeciesInteractionNetworks
 
-tests = ["mock test" => "00_allgood.jl", 
-        "Cascading extinctions" => "01_cascade.jl",
-        "Numeric extinctions" => "02_numeric.jl"]
+@testset "Extinctions" begin
 
-for test in tests
-    try
-        include(joinpath("units", test.second))
-        println("\033[1m\033[32m✓\033[0m\t$(test.first)")
-    catch e
-        global anyerrors = true
-        println("\033[1m\033[31m×\033[0m\t$(test.first)")
-        println("\033[1m\033[38m→\033[0m\ttest/$(test.second)")
-        showerror(stdout, e, backtrace())
-        println()
-        break
+     @testset "All Good" begin
+        include("units/00_allgood.jl")
     end
-end
 
-if anyerrors
-    throw("Tests failed")
+    @testset "Cascade" begin
+        include("units/01_cascade.jl")
+    end
+
+    @testset "Numeric" begin
+        include("units/02_numeric.jl")
+    end
+
+    @testset "Robustness & Resilience" begin
+        include("units/03_robustness.jl")
+    end
+
 end
