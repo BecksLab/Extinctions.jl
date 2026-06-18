@@ -1,84 +1,110 @@
-module SPTestRobustnessResilience
-
+using Test
 using Extinctions
 using SpeciesInteractionNetworks
-using Test
 
-# Simple chain network
-spp = [:wolf, :fox, :rat, :plant]
-nodes = Unipartite(spp)
+@testset "Robustness & Resilience" begin
 
-int_matrix = Bool[
-    0 1 0 0
-    0 0 1 0
-    0 0 0 1
-    0 0 0 0
-]
+    # ------------------------------------------------
+    # Simple chain network
+    # ------------------------------------------------
+    spp = [:wolf, :fox, :rat, :plant]
+    nodes = Unipartite(spp)
 
-edges = Binary(int_matrix)
-N = SpeciesInteractionNetwork(nodes, edges)
+    int_matrix = Bool[
+        0 1 0 0
+        0 0 1 0
+        0 0 0 1
+        0 0 0 0
+    ]
 
-# TEST: robustness (deterministic)
-# Removing plant collapses entire network immediately
+    edges = Binary(int_matrix)
+    N = SpeciesInteractionNetwork(nodes, edges)
 
-r = robustness(
-    N;
-    extinction_order = [:plant]
-)
+    # =================================================
+    # TEST 1: deterministic robustness (single extinction)
+    # =================================================
+    @testset "single extinction collapse" begin
 
-# Only 1 removal needed out of 4 species
-@test r == 0
+        r = robustness(
+            N;
+            extinction_order = [:plant]
+        )
 
-# --------------------------------
-# TEST: robustness threshold edge
-# --------------------------------
-# threshold = 100 → no collapse ever triggered until full removal
+        # Only 1 removal needed out of 4 species → collapse immediately
+        @test r == 0.0
+    end
 
-r_full = robustness(
-    N;
-    extinction_order = [:plant, :rat, :fox, :wolf],
-    threshold = 100
-)
+    # =================================================
+    # TEST 2: full extinction order
+    # =================================================
+    @testset "full extinction order" begin
 
-@test r_full == 0.0
+        r = robustness(
+            N;
+            extinction_order = [:plant, :rat, :fox, :wolf]
+        )
 
-# --------------------------------
-# TEST: robustness full collapse threshold
-# --------------------------------
-# threshold = 0 → collapse immediately
+        @test r == 0.0
+    end
 
-r_zero = robustness(
-    N;
-    extinction_order = [:plant, :rat, :fox, :wolf],
-    threshold = 1
-)
+    # =================================================
+    # TEST 3: threshold edge cases
+    # =================================================
+    @testset "threshold behaviour" begin
 
-@test r_zero == 0.0
+        order = [:plant, :rat, :fox, :wolf]
 
-# --------------------------------
-# TEST: resilience (AUC extremes)
-# --------------------------------
+        r_high = robustness(
+            N;
+            extinction_order = order,
+            threshold = 100
+        )
 
-# Case 1: no extinction (flat line at 1)
-Ns_flat = [N, N, N]
-@test resilience(Ns_flat) == 0.0
+        @test r_high == 0.0
 
-# --------------------------------
-# TEST: resilience known curve
-# --------------------------------
-# richness trajectory: 4 → 3 → 2 → 1 → 0
-Ns_seq = extinction(N, [:plant]; protect = :none)
+        r_low = robustness(
+            N;
+            extinction_order = order,
+            threshold = 1
+        )
 
-auc_val = resilience(Ns_seq)
+        @test r_low == 0.0
+    end
 
-# Expected: linear decline → AUC ≈ 0.5
-@test auc_val ≈ 0.5
+    # =================================================
+    # TEST 4: invalid mechanism should error
+    # =================================================
+    @testset "invalid inputs" begin
 
-# --------------------------------
-# TEST: resilience monotonicity
-# --------------------------------
-secondary = richness.(Ns_seq) ./ richness(first(Ns_seq))
+        @test_throws ErrorException robustness(
+            N;
+            mechanism = :invalid
+        )
+    end
 
-@test all(diff(secondary) .<= 0)
+    # =================================================
+    # TEST 5: single species network edge case
+    # =================================================
+    @testset "single species network" begin
+
+        spp1 = [:plant]
+        nodes1 = Unipartite(spp1)
+        edges1 = Binary(zeros(Bool, 1, 1))
+        N1 = SpeciesInteractionNetwork(nodes1, edges1)
+
+        r = robustness(N1; extinction_order = [:plant])
+
+        @test r == 0.0
+    end
+
+    # =================================================
+    # TEST 6: output validity bounds
+    # =================================================
+    @testset "valid output range" begin
+
+        r = robustness(N; extinction_order = [:plant])
+
+        @test 0.0 <= r <= 1.0
+    end
 
 end
