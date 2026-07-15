@@ -1,7 +1,6 @@
 """
-    Calculates the robustness for a network. That is the proportion of primary extinction that result in
-    the user specified % of species going extinct. This threshold is specified by `threshold`. Extinctions
-    are randomised (unless a predetermined extinction sequence is specified.)
+    Calculates the robustness for a network using linear interpolation to handle 
+    discrete-step overshooting of the specified threshold.
 """
 function robustness(
     N::SpeciesInteractionNetwork{<:Partiteness,<:Binary};
@@ -10,79 +9,84 @@ function robustness(
     mechanism::Symbol = :cascade,
     remove_disconnected::Bool = false)
 
-    # tests
     if mechanism ∉ [:cascade, :secondary]
         error("Invalid value for mechanism -- must be :cascade or :secondary")
     end
 
     initial_rich = richness(N)
-
-    # for recording the number of primary extinctions
-    num_prim = 0
-
-    K = deepcopy(N)
+    target = threshold / 100.0
 
     if extinction_order === nothing
-        extinction_order = StatsBase.shuffle(species(K))
+        extinction_order = StatsBase.shuffle(species(N))
     end
 
+    K = deepcopy(N)
     current_species = Set(species(K))
 
-    # keep removing species until richness drops below threshold
-    for (i, sp_primary) in enumerate(extinction_order)
-        # check if sp in network
+    # Track the previous point (start at 0 extinctions, 100% richness)
+    prev_x = 0.0
+    prev_y = 1.0
+    num_prim = 0
+
+    for sp_primary in extinction_order
         if sp_primary ∈ current_species
-
             ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, remove_disconnected = remove_disconnected)
-
             K = ext_seq[end]
+            
+            # Note: updating current_species ensures we don't try to delete 
+            # species that have already gone secondary-extinct.
+            current_species = Set(species(K)) 
 
-            if richness(K) / initial_rich >= (threshold/100)
-                # keep record of the number of primary extinctions
-                num_prim += 1
-                continue
-            else
-                break
+            # Calculate metrics for the current step
+            curr_x = (num_prim + 1) / initial_rich
+            curr_y = richness(K) / initial_rich
+
+            # If we crossed the threshold, interpolate and return immediately
+            if curr_y < target
+                return prev_x + (target - prev_y) * (curr_x - prev_x) / (curr_y - prev_y)
             end
+
+            # Otherwise, update tracking variables and continue
+            num_prim += 1
+            prev_x = curr_x
+            prev_y = curr_y
         end
     end
 
-    # return prop of primary extinctions as total number of initial species
-    return num_prim/initial_rich
-
+    return prev_x
 end
 
 """
     robustness(network_sequence::Vector{<:SpeciesInteractionNetwork};
                threshold::Int = 50)
 
-Calculate robustness from a precomputed extinction sequence of networks.
-The sequence should go from the initial network to the fully extinct network.
+Calculate robustness from a precomputed extinction sequence of networks
+using linear interpolation.
 """
 function robustness(
     network_sequence::Vector{<:SpeciesInteractionNetwork};
     threshold::Int = 50
 )
-
     isempty(network_sequence) && error("network_sequence cannot be empty")
 
     initial_rich = richness(network_sequence[1])
+    target = threshold / 100.0
 
-    # number of primary extinctions (i.e. steps before threshold crossed)
-    num_prim = 0
+    # Track previous point
+    prev_x = 0.0
+    prev_y = 1.0
 
-    for (i, net) in enumerate(network_sequence)
-        current_rich = richness(net)
+    for i in 2:length(network_sequence)
+        curr_x = (i - 1) / initial_rich
+        curr_y = richness(network_sequence[i]) / initial_rich
 
-        if current_rich / initial_rich >= (threshold / 100)
-            # do not count the initial state as an extinction step
-            if i > 1
-                num_prim += 1
-            end
-        else
-            break
+        if curr_y < target
+            return prev_x + (target - prev_y) * (curr_x - prev_x) / (curr_y - prev_y)
         end
+
+        prev_x = curr_x
+        prev_y = curr_y
     end
 
-    return num_prim / initial_rich
+    return prev_x
 end
