@@ -7,6 +7,7 @@ function robustness(
     extinction_order::Union{Nothing,Vector{Symbol}} = nothing, 
     threshold::Int = 50,
     mechanism::Symbol = :cascade,
+    protect::Symbol = :none,
     remove_disconnected::Bool = false)
 
     if mechanism ∉ [:cascade, :secondary]
@@ -30,7 +31,7 @@ function robustness(
 
     for sp_primary in extinction_order
         if sp_primary ∈ current_species
-            ext_seq = extinction(K, [sp_primary]; protect = :none, mechanism = mechanism, remove_disconnected = remove_disconnected)
+            ext_seq = extinction(K, [sp_primary]; protect = protect, mechanism = mechanism, remove_disconnected = remove_disconnected)
             K = ext_seq[end]
             
             # Note: updating current_species ensures we don't try to delete 
