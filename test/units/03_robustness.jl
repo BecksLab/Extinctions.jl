@@ -154,5 +154,98 @@ using SpeciesInteractionNetworks
         )
         @test r_40 ≈ 0.60
     end
+
+    # =================================================
+    # TEST 8: Precomputed extinction sequence
+    # =================================================
+    @testset "precomputed extinction sequence" begin
+
+        order = [:wolf, :fox, :rat, :plant]
+
+        ext_seq = extinction(
+            N,
+            order;
+            protect = :none,
+            mechanism = :cascade,
+            remove_disconnected = false,
+        )
+
+        # The sequence should include the original network.
+        @test !isempty(ext_seq)
+        @test richness(ext_seq[1]) == richness(N)
+
+        # Every threshold should agree with the direct method
+        # if the sequence-based method counts primary extinctions
+        # consistently with the original method.
+        for threshold in (1, 25, 40, 50, 60, 75, 99, 100)
+
+            r_direct = robustness(
+                N;
+                extinction_order = order,
+                threshold = threshold,
+                protect = :none,
+                mechanism = :cascade,
+                remove_disconnected = false,
+            )
+
+            r_sequence = robustness(
+                ext_seq;
+                threshold = threshold,
+            )
+
+            @test r_sequence ≈ r_direct
+        end
+
+        # Empty sequences should be rejected.
+        @test_throws ErrorException robustness(
+            typeof(ext_seq)()
+        )
+    end
+
+    # =================================================
+    # TEST 9: Independent interpolation benchmark
+    # =================================================
+    @testset "independent interpolation benchmark" begin
+
+        spp4 = [:a, :b, :c, :d]
+        nodes4 = Unipartite(spp4)
+        edges4 = Binary(zeros(Bool, 4, 4))
+        N4 = SpeciesInteractionNetwork(nodes4, edges4)
+
+        order4 = [:a, :b, :c, :d]
+
+        ext_seq4 = extinction(
+            N4,
+            order4;
+            protect = :none,
+            mechanism = :cascade,
+            remove_disconnected = false,
+        )
+
+        # Four species, one primary extinction per step.
+        @test [richness(n) for n in ext_seq4] == [4, 3, 2, 1, 0]
+
+        for threshold in (1, 25, 40, 50, 60, 75, 99, 100)
+
+            expected = 1 - threshold / 100
+
+            r_direct = robustness(
+                N4;
+                extinction_order = order4,
+                threshold = threshold,
+                protect = :none,
+                mechanism = :cascade,
+                remove_disconnected = false,
+            )
+
+            r_sequence = robustness(
+                ext_seq4;
+                threshold = threshold,
+            )
+
+            @test r_direct ≈ expected
+            @test r_sequence ≈ expected
+        end
+    end
     
 end
