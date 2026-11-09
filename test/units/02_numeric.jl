@@ -24,11 +24,10 @@ N = network
 
 ext_seq = extinction(N, "generality", true; protect = :none)
 
-# test if fox first species removed
+# Test the dynamic extinction path and its selected first removal.
+@test species(ext_seq[1]) == species(N)
 @test :wolf ∉ species(ext_seq[2])
-# test if rat (and by extension plant removed)
-@test [:rat, :plant] ∉ species(ext_seq[3])
-# test final community completely extinct
+@test Set(species(ext_seq[3])) == Set([:hawk, :vole, :rat, :plant])
 @test richness(ext_seq[end]) == 0
 
 ### more complex
@@ -39,5 +38,7 @@ networks = load_object("data/networks.jlds")
 N = networks.network[3]
 
 ext_seq = extinction(N, "generality", true; protect = :basal)
+@test species(ext_seq[1]) == species(N)
+@test length(ext_seq) > 1
 
 end

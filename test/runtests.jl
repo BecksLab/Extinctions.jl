@@ -4,7 +4,7 @@ using SpeciesInteractionNetworks
 
 @testset "Extinctions" begin
 
-     @testset "All Good" begin
+    @testset "Extinction Sequence" begin
         include("units/00_allgood.jl")
     end
 
@@ -18,6 +18,10 @@ using SpeciesInteractionNetworks
 
     @testset "Robustness & Resilience" begin
         include("units/03_robustness.jl")
+    end
+
+    @testset "Core Behavior" begin
+        include("units/04_core_behavior.jl")
     end
 
 end
